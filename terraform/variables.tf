@@ -65,3 +65,9 @@ variable "eks_oidc_provider_url" {
   type        = string
   default     = ""  // Leave empty unless your cluster is pre-existing
 } 
+
+variable "oidc_thumbprint" {
+  description = "Thumbprint for the OIDC provider certificate"
+  type        = string
+  default     = "9e99a48a9960b14926bb7f3b5fe2f4e93a6e47f"  // adjust as needed for your certificate
+} 
