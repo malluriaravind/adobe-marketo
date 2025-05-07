@@ -84,13 +84,13 @@ locals {
         Statement = [{
           Effect = "Allow",
           Principal = {
-            Federated = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/${var.eks_oidc_provider_url != "" ? var.eks_oidc_provider_url : local.computed_oidc_provider_url}"
+            Federated = aws_iam_openid_connect_provider.eks.arn
           },
           Action    = "sts:AssumeRoleWithWebIdentity",
           Condition = {
             StringEquals = {
-              // Uses provided OIDC URL if available, otherwise falls back on the computed URL.
-              "${var.eks_oidc_provider_url != "" ? var.eks_oidc_provider_url : local.computed_oidc_provider_url}:sub" = "system:serviceaccount:default:rds-access"
+              // Remove the "https://" prefix from the URL to match the required format.
+              "${replace(aws_iam_openid_connect_provider.eks.url, "https://", "")}:sub" = "system:serviceaccount:default:rds-access"
             }
           }
         }]
