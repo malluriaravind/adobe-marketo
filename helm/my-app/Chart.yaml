@@ -1,0 +1,6 @@
+apiVersion: v2
+name: my-app
+description: A Helm chart for production deployment of My App on EKS
+type: application
+version: 1.0.0
+appVersion: "1.0" 

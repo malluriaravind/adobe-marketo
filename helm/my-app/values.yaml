@@ -1,0 +1,55 @@
+replicaCount: 3
+
+image:
+  backend:
+    repository: "511027370166.dkr.ecr.us-west-1.amazonaws.com/adobe-marketo-backend"  # Replace with Terraform output substitution if needed
+    tag: "latest"
+  frontend:
+    repository: "511027370166.dkr.ecr.us-west-1.amazonaws.com/adobe-marketo-frontend"
+    tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  hosts:
+    - host: adobemarketotask.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: myapp-tls
+      hosts:
+        - adobemarketotask.com
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 80
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: 80
+  initialDelaySeconds: 15
+  periodSeconds: 5 

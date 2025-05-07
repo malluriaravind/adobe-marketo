@@ -1,0 +1,44 @@
+name: Terraform Infrastructure Deployment
+
+on:
+  workflow_dispatch: {}    # Allows manual triggering
+  push:
+    paths:
+      - 'terraform/**'      # Auto-trigger if any file in the terraform folder changes
+
+env:
+  TF_VERSION: "1.1.0"
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+
+jobs:
+  terraform:
+    name: "Terraform Deployment"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      
+      - name: Configure AWS Credentials using OIDC
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.WORKFLOWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+      
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init
+      
+      - name: Terraform Plan and Apply
+        working-directory: terraform
+        env:
+          TF_VAR_database_url:       ${{ secrets.DATABASE_URL }}
+          TF_VAR_cognito_user_pool_id: ${{ secrets.COGNITO_USER_POOL_ID }}
+          TF_VAR_cognito_client_id:    ${{ secrets.COGNITO_CLIENT_ID }}
+        run: |
+          terraform plan -out=tfplan
+          terraform apply -auto-approve tfplan 
