@@ -1,7 +1,7 @@
-/adobe-marketo/node_modules
-/adobe-marketo/build
-/adobe-marketo/package-lock.json
-/adobe-marketo/yarn.lock
-/adobe-marketo/yarn-error.log
-/adobe-marketo/yarn-debug.log
-/adobe-marketo/yarn-debug.log.
+/frontend/node_modules
+/frontend/build
+/frontend/package-lock.json
+/frontend/yarn.lock
+/frontend/yarn-error.log
+/frontend/yarn-debug.log
+/frontend/yarn-debug.log.
