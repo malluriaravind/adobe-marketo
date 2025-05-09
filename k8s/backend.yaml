@@ -8,10 +8,19 @@ metadata:
     component: backend
 spec:
   replicas: {{ .Values.backend.replicaCount }}
+
+  # Rolling update strategy
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+
   selector:
     matchLabels:
       app: {{ .Values.global.appName }}
       component: backend
+
   template:
     metadata:
       labels:
@@ -23,6 +32,22 @@ spec:
           image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
           ports:
             - containerPort: 8000
+
+          # Health checks
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
           resources:
             {{- toYaml .Values.backend.resources | nindent 12 }}
 ---
@@ -41,4 +66,4 @@ spec:
       targetPort: {{ .Values.backend.service.targetPort }}
   selector:
     app: {{ .Values.global.appName }}
-    component: backend 
+    component: backend
