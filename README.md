@@ -352,8 +352,8 @@ The application implements comprehensive monitoring and maintenance procedures:
 ## Screenshots
 ![Signup Page](./signup.png)
 ![Verification Code](./verification-code.png)
-![Login Page](./login.png)
+![Login Page](./login-page.png)
 ![Tasks Page](./tasks-page.png)
 ![Task](./task.png)
 ![Dashboard Page](./task-dashboard.png)
-![Rate Limiting])./rate-limiting.png
+![Rate Limiting])(./rate-limiting.png) 
