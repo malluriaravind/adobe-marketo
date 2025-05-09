@@ -51,4 +51,4 @@ frontend:
     port: 80
     targetPort: 80
   env:
-    REACT_APP_API_URL: "54.219.163.27" 
+    REACT_APP_API_URL: ${{ secrets.REACT_APP_API_BASE_URL }}
