@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.global.appName }}-frontend
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: {{ .Values.global.appName }}
+    component: frontend
+spec:
+  replicas: {{ .Values.frontend.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.global.appName }}
+      component: frontend
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.global.appName }}
+        component: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
+          env:
+            - name: REACT_APP_API_URL
+              value: "{{ .Values.frontend.env.REACT_APP_API_URL }}"
+          ports:
+            - containerPort: 80
+          resources:
+            {{- toYaml .Values.frontend.resources | nindent 12 }}
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.global.appName }}-frontend
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: {{ .Values.global.appName }}
+    component: frontend
+spec:
+  type: {{ .Values.frontend.service.type }}
+  {% if .Values.frontend.service.loadBalancerIP %}
+  loadBalancerIP: {{ .Values.frontend.service.loadBalancerIP }}
+  {% endif %}
+  ports:
+    - port: {{ .Values.frontend.service.port }}
+      targetPort: {{ .Values.frontend.service.targetPort }}
+  selector:
+    app: {{ .Values.global.appName }}
+    component: frontend

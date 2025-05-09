@@ -6,6 +6,7 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import config from '../config';
 
 // ADD: Import icons from Material UI
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -65,7 +66,7 @@ const TaskPage = ({ onLogout, user }) => {
 
   const fetchTasks = async () => {
     try {
-      const response = await axios.get(`http://localhost:8000/tasks`, {
+      const response = await axios.get(`${config.apiBaseUrl}/tasks`, {
         params: { user_id: user.id, page, per_page: 10 }
       });
       setTasks(response.data.tasks);
@@ -86,7 +87,7 @@ const TaskPage = ({ onLogout, user }) => {
         priority: task.priority,
         user_id: task.user_id
       };
-      await axios.put(`http://localhost:8000/tasks/${task.id}`, updatedTask);
+      await axios.put(`${config.apiBaseUrl}/tasks/${task.id}`, updatedTask);
       
       // Optimistically update state: remove the task from the active tasks list.
       setTasks(prevTasks => prevTasks.filter(t => t.id !== task.id));
@@ -97,37 +98,34 @@ const TaskPage = ({ onLogout, user }) => {
 
   const deleteTask = async (taskId) => {
     try {
-      await axios.delete(`http://localhost:8000/tasks/${taskId}`);
+      await axios.delete(`${config.apiBaseUrl}/tasks/${taskId}`);
       fetchTasks();
     } catch (error) {
       console.error('Error deleting task:', error);
     }
   };
 
-  // Handler for creating a new task within the modal
   const handleCreateTask = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:8000/tasks/', {
+      await axios.post(`${config.apiBaseUrl}/tasks/`, {
         title: newTitle,
         description: newDescription,
         due_date: newDueDate,
         priority: newPriority,
         user_id: user.id
       });
-      setOpenCreateDialog(false);  // close modal after creation
-      // Clear fields
+      setOpenCreateDialog(false);
       setNewTitle('');
       setNewDescription('');
       setNewDueDate('');
       setNewPriority('medium');
-      fetchTasks(); // refresh list
+      fetchTasks();
     } catch (error) {
       console.error('Error creating task:', error);
     }
   };
 
-  // Handler to open edit modal and load task data
   const handleEditClick = (task) => {
     setEditTaskId(task.id);
     setEditTitle(task.title);
@@ -138,11 +136,10 @@ const TaskPage = ({ onLogout, user }) => {
     setOpenEditDialog(true);
   };
 
-  // Handler to update the task via inline edit modal
   const handleEditTask = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:8000/tasks/${editTaskId}`, {
+      await axios.put(`${config.apiBaseUrl}/tasks/${editTaskId}`, {
         title: editTitle,
         description: editDescription,
         due_date: editDueDate,

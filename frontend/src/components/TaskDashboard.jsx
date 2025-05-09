@@ -3,6 +3,7 @@ import { Box, Typography, Paper, Button, Table, TableBody, TableCell, TableConta
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
+import config from '../config';
 
 const TaskDashboard = ({ user }) => {
   const [dashboardData, setDashboardData] = useState(null);
@@ -12,7 +13,7 @@ const TaskDashboard = ({ user }) => {
   // Fetch dashboard statistics
   const fetchDashboard = async () => {
     try {
-      const response = await axios.get(`http://localhost:8000/tasks/dashboard`, {
+      const response = await axios.get(`${config.apiBaseUrl}/tasks/dashboard`, {
         params: { user_id: user.id }
       });
       setDashboardData(response.data);
@@ -24,7 +25,7 @@ const TaskDashboard = ({ user }) => {
   // Fetch completed tasks from the separate completed_tasks table
   const fetchCompletedTasks = async () => {
     try {
-      const response = await axios.get(`http://localhost:8000/completed-tasks`, {
+      const response = await axios.get(`${config.apiBaseUrl}/tasks/completed`, {
         params: { user_id: user.id }
       });
       setCompletedTasks(response.data);

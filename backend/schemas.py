@@ -3,7 +3,6 @@ from datetime import datetime
 from typing import Optional
 from enum import Enum
 
-# Add a new enum for task priority
 class TaskPriority(Enum):
     critical = "critical"
     high = "high"
@@ -47,7 +46,6 @@ class User(UserBase):
     class Config:
         orm_mode = True
 
-# ADD: CompletedTask schema
 class CompletedTask(BaseModel):
     id: int
     task_id: int
@@ -60,3 +58,11 @@ class CompletedTask(BaseModel):
 
     class Config:
         orm_mode = True
+
+class EmailSchema(BaseModel):
+    email: str
+
+class PasswordResetSchema(BaseModel):
+    email: str
+    code: str
+    password: str

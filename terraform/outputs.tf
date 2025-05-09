@@ -18,12 +18,17 @@ output "eks_cluster_name" {
   value = aws_eks_cluster.eks_cluster.name
 }
 
+<<<<<<< HEAD
+output "eks_cluster_role_arn" {
+  value = aws_iam_role.roles["eks_cluster_role"].arn
+=======
 output "acm_certificate_arn" {
   value = aws_acm_certificate.app_cert.arn
 }
 
 output "eks_cluster_role_arn" {
   value = aws_iam_role.eks_cluster_role.arn
+>>>>>>> 93a3394 (added)
 }
 
 output "iam_roles_arns" {

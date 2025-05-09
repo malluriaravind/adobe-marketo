@@ -22,21 +22,28 @@ resource "aws_ecr_repository" "frontend_repo" {
 
 resource "aws_s3_bucket" "artifacts_bucket" {
   bucket = var.artifacts_bucket_name
-  acl    = "private"
+}
 
-  versioning {
-    enabled = true
+resource "aws_s3_bucket_versioning" "artifacts_bucket" {
+  bucket = aws_s3_bucket.artifacts_bucket.id
+
+  versioning_configuration {
+    status = "Enabled"
   }
+}
 
-  lifecycle_rule {
-    enabled = true
-    id      = "expire-artifacts"
+resource "aws_s3_bucket_lifecycle_configuration" "artifacts_bucket" {
+  bucket = aws_s3_bucket.artifacts_bucket.id
+
+  rule {
+    id     = "expire-artifacts"
+    status = "Enabled"
+
     expiration {
       days = 30
     }
   }
 }
-
 
 resource "aws_secretsmanager_secret" "app_secrets" {
   name = "my-app-secrets"
@@ -53,7 +60,6 @@ resource "aws_secretsmanager_secret_version" "app_secrets_version" {
   })
 }
 
-
 resource "aws_eks_cluster" "eks_cluster" {
   name     = var.eks_cluster_name
   role_arn = aws_iam_role.roles["eks_cluster_role"].arn
@@ -67,23 +73,3 @@ resource "aws_eks_cluster" "eks_cluster" {
     aws_iam_role_policy_attachment.roles
   ]
 }
-
-output "backend_ecr_repo_url" {
-  value = aws_ecr_repository.backend_repo.repository_url
-}
-
-output "frontend_ecr_repo_url" {
-  value = aws_ecr_repository.frontend_repo.repository_url
-}
-
-output "artifacts_bucket" {
-  value = aws_s3_bucket.artifacts_bucket.id
-}
-
-output "app_secrets_arn" {
-  value = aws_secretsmanager_secret.app_secrets.arn
-}
-
-output "eks_cluster_name" {
-  value = aws_eks_cluster.eks_cluster.name
-} 

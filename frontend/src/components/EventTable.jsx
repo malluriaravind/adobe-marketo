@@ -3,11 +3,12 @@ import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import axios from 'axios';
+import config from '../config';
 
 const EventTable = ({ events, fetchEvents, onEdit }) => {
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:8000/events/${id}`);
+      await axios.delete(`${config.apiBaseUrl}/events/${id}`);
       fetchEvents();
     } catch (error) {
       console.error("Error deleting event", error);

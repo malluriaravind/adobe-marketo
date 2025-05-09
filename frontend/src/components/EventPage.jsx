@@ -36,6 +36,7 @@ import axios from 'axios';
 import EventTable from './EventTable';
 import { useNavigate } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
+import config from '../config';
 
 const drawerWidth = 240;
 
@@ -59,7 +60,7 @@ const EventPage = ({ onLogout, user }) => {
 
   const fetchEvents = async () => {
     try {
-      const response = await axios.get(`http://localhost:8000/events`, {
+      const response = await axios.get(`${config.apiBaseUrl}/events`, {
         params: { page, search: searchQuery, per_page: perPage }
       });
       setEvents(response.data.events);
@@ -76,7 +77,7 @@ const EventPage = ({ onLogout, user }) => {
   const handleDelete = async () => {
     console.log(`Deleting event with ID: ${selectedEvent.id}`);
     try {
-      await axios.delete(`http://localhost:8000/events/${selectedEvent.id}`);
+      await axios.delete(`${config.apiBaseUrl}/events/${selectedEvent.id}`);
       setOpenDeleteDialog(false);
       fetchEvents();
       console.log(`Successfully deleted event with ID: ${selectedEvent.id}`);
@@ -109,7 +110,7 @@ const EventPage = ({ onLogout, user }) => {
         date: formattedDate
       });
 
-      await axios.post('http://localhost:8000/events/', {
+      await axios.post(`${config.apiBaseUrl}/events/`, {
         title: formData.get('title'),
         description: formData.get('description'),
         date: formattedDate
@@ -127,7 +128,7 @@ const EventPage = ({ onLogout, user }) => {
     try {
       const dateValue = formData.get('date');
       const formattedDate = new Date(dateValue).toISOString();
-      await axios.put(`http://localhost:8000/events/${selectedEvent.id}`, {
+      await axios.put(`${config.apiBaseUrl}/events/${selectedEvent.id}`, {
         title: formData.get('title'),
         description: formData.get('description'),
         date: formattedDate

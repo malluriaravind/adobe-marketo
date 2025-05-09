@@ -33,7 +33,7 @@ class Task(Base):
 class CompletedTask(Base):
     __tablename__ = "completed_tasks"
     id = Column(Integer, primary_key=True, index=True)
-    task_id = Column(Integer, nullable=False)  # Reference to the original task
+    task_id = Column(Integer, nullable=False)
     title = Column(String, nullable=False)
     description = Column(String, nullable=True)
     due_date = Column(DateTime, nullable=False)

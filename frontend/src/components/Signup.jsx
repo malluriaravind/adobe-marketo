@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Box, Button, TextField, Snackbar, Alert, Typography } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthenticationLayout from './AuthenticationLayout';
+import config from '../config';
 
 const Signup = () => {
   const [email, setEmail] = useState('');
@@ -15,7 +16,7 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:8000/auth/signup', { email, password });
+      await axios.post(`${config.apiBaseUrl}/auth/signup`, { email, password });
       setSnackbarMsg('Signup successful. A verification code has been sent to your email.');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);

@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Box, Button, TextField, Snackbar, Alert, Typography } from '@mui/material';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import AuthenticationLayout from './AuthenticationLayout';
+import config from '../config';
 
 const ConfirmSignup = () => {
   const location = useLocation();
@@ -23,7 +24,7 @@ const ConfirmSignup = () => {
       return;
     }
     try {
-      const response = await axios.post('http://localhost:8000/auth/confirm', { email, code });
+      const response = await axios.post(`${config.apiBaseUrl}/auth/confirm`, { email, code });
       setSnackbarMsg("Verification successful! You can now log in.");
       setSnackbarSeverity('success');
       setSnackbarOpen(true);

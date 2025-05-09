@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Box, Button, TextField, Typography, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
+import config from '../config';
 
-// ADD: Import icons for status and priority
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import WarningIcon from '@mui/icons-material/Warning';
@@ -22,7 +22,7 @@ const EditTask = ({ user }) => {
   useEffect(() => {
     const fetchTask = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/tasks/${taskId}`);
+        const response = await axios.get(`${config.apiBaseUrl}/tasks/${taskId}`);
         const task = response.data;
         setTitle(task.title);
         setDescription(task.description);
@@ -39,7 +39,7 @@ const EditTask = ({ user }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:8000/tasks/${taskId}`, {
+      await axios.put(`${config.apiBaseUrl}/tasks/${taskId}`, {
         title,
         description,
         due_date: dueDate,
@@ -109,7 +109,6 @@ const EditTask = ({ user }) => {
             </MenuItem>
           </Select>
         </FormControl>
-        {/* ADD: Status dropdown with icons */}
         <FormControl fullWidth margin="normal">
           <InputLabel id="status-label">Status</InputLabel>
           <Select

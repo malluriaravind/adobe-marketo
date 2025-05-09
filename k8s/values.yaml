@@ -1,0 +1,54 @@
+global:
+  namespace: my-app
+  appName: my-app
+
+backend:
+  replicaCount: 3
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+    requests:
+      cpu: "250m"
+      memory: "256Mi"
+  image:
+    repository: 511027370166.dkr.ecr.us-west-1.amazonaws.com/adobe-marketo-backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: LoadBalancer
+    port: 80
+    targetPort: 8000
+
+frontend:
+  replicaCount: 1
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+    requests:
+      cpu: "250m"
+      memory: "256Mi"
+  image:
+    repository: 511027370166.dkr.ecr.us-west-1.amazonaws.com/adobe-marketo-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: LoadBalancer
+    loadBalancerIP: "54.219.163.27"
+    port: 80
+    targetPort: 80
+  env:
+    REACT_APP_API_URL: "54.219.163.27" 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Box, Button, TextField, Typography } from '@mui/material';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import config from '../config';
 
 const CreateTask = ({ user }) => {
   const [title, setTitle] = useState('');
@@ -12,7 +13,7 @@ const CreateTask = ({ user }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:8000/tasks/', {
+      await axios.post(`${config.apiBaseUrl}/tasks/`, {
         title,
         description,
         due_date: dueDate,

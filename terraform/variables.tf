@@ -7,18 +7,12 @@ variable "aws_region" {
 variable "artifacts_bucket_name" {
   description = "S3 bucket name for artifacts"
   type        = string
-  default     = "aravind-adobe-marketo-artifacts"  // Ensure this is globally unique.
+  default     = "aravind-adobe-marketo-artifacts" .
 }
 
 variable "database_url" {
   description = "Database URL for the app"
   type        = string
-}
-
-variable "frontend_url" {
-  description = "Production Frontend URL (used for CORS)"
-  type        = string
-  default     = "https://adobemarketotask.com"
 }
 
 variable "cognito_user_pool_id" {
@@ -37,11 +31,6 @@ variable "eks_cluster_name" {
   default     = "adobe-marketo-eks-cluster"
 }
 
-variable "eks_cluster_role_arn" {
-  description = "ARN of the IAM role for the EKS Cluster"
-  type        = string
-}
-
 variable "subnets" {
   description = "List of subnet IDs for the EKS cluster"
   type        = list(string)
@@ -58,16 +47,4 @@ variable "certificate_domain" {
   description = "The domain or subdomain for the SSL certificate (e.g. myapp.example.com)"
   type        = string
   default     = "adobemarketotask.com"
-} 
-
-variable "eks_oidc_provider_url" {
-  description = "The URL of the OIDC provider for your EKS cluster. If the cluster already exists, you can automatically compute it—but if you are creating the cluster, leave this empty and retrieve it after creation."
-  type        = string
-  default     = ""  // Leave empty unless your cluster is pre-existing
-} 
-
-variable "oidc_thumbprint" {
-  description = "Thumbprint for the OIDC provider certificate"
-  type        = string
-  default     = "9e99a48a9960b14926bb7f3b5fe2f4e93a6e47f"  // adjust as needed for your certificate
 } 

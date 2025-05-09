@@ -4,13 +4,15 @@ import axios from 'axios';
 import Login from './components/Login';
 import Signup from './components/Signup';
 import ConfirmSignup from './components/ConfirmSignup';
+import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
 import TaskPage from './components/TaskPage';
 import CreateTask from './components/CreateTask';
 import EditTask from './components/EditTask';
 import TaskDashboard from './components/TaskDashboard';
 import { Button, AppBar, Toolbar, Typography } from '@mui/material';
+import config from './config';
 
-// Ensure axios sends credentials with every request.
 axios.defaults.withCredentials = true;
 
 const AppContent = () => {
@@ -18,18 +20,21 @@ const AppContent = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Check session on app load
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/auth/session');
+        const response = await axios.get(`${config.apiBaseUrl}/auth/session`);
         if (response.data.message === 'Session active') {
-          setUser({ ...response.data, id: 1, authenticated: true }); // For demo, assign an id (in practice, use your auth payload)
+          setUser({ ...response.data, id: 1, authenticated: true });
         }
       } catch (error) {
         if (error.response?.status === 401) {
           setUser(null);
-          navigate('/login');
+          const currentPath = window.location.pathname;
+          const authPaths = ['/login', '/signup', '/confirm', '/forgot-password', '/reset-password'];
+          if (!authPaths.includes(currentPath)) {
+            navigate('/login');
+          }
         } else {
           console.error('Error checking session:', error);
         }
@@ -46,7 +51,7 @@ const AppContent = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post('http://localhost:8000/auth/logout', {}, { withCredentials: true });
+      await axios.post(`${config.apiBaseUrl}/auth/logout`, {}, { withCredentials: true });
       setUser(null);
       navigate('/login');
     } catch (error) {
@@ -86,6 +91,8 @@ const AppContent = () => {
         <Route path="/login" element={<Login onLogin={handleLogin} />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/confirm" element={<ConfirmSignup />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/tasks" element={<TaskPage onLogout={handleLogout} user={user} />} />
         <Route path="/edit-task/:taskId" element={<EditTask user={user} />} />
         <Route path="/dashboard" element={<TaskDashboard user={user} />} />

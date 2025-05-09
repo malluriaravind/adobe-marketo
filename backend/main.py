@@ -12,7 +12,7 @@ import os
 from database import SessionLocal, engine
 import models
 import schemas
-from auth import sign_up, confirm_sign_up, login
+from auth import sign_up, confirm_sign_up, login, forgot_password, confirm_forgot_password
 
 # WARNING: The following code drops all tables (with CASCADE) and then creates them.
 # Do NOT use this in production as it will delete your existing data.
@@ -23,16 +23,18 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-frontend_origin = os.getenv("FRONTEND_URL", "http://localhost:3000")
+origins = ["http://54.219.163.27", "http://54.219.163.27:80", "http://localhost:3000"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[frontend_origin],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
+    max_age=86400,
 )
 
-# Pydantic models for requests
 class AuthDetails(BaseModel):
     email: str
     password: str
@@ -62,7 +64,6 @@ class TaskUpdate(BaseModel):
     due_date: datetime
     status: TaskStatus = TaskStatus.PENDING
 
-# Dependency to get the database session
 def get_db():
     db = SessionLocal()
     try:
@@ -70,14 +71,11 @@ def get_db():
     finally:
         db.close()
 
-# Add a startup event to create a default user for testing purposes.
 @app.on_event("startup")
 def create_default_user():
     db = SessionLocal()
-    # Check if user with id=1 exists, if not, create it.
     default_user = db.query(models.User).filter(models.User.id == 1).first()
     if not default_user:
-        # In a production system, ensure to properly hash the password
         default_user = models.User(id=1, email="test@example.com", hashed_password="testpassword")
         db.add(default_user)
         db.commit()
@@ -85,7 +83,6 @@ def create_default_user():
         print("Default user with id=1 created")
     db.close()
 
-# Auth Endpoints
 @app.post("/auth/signup")
 def signup_endpoint(auth_details: AuthDetails):
     if len(auth_details.password) < 8:
@@ -100,45 +97,49 @@ def confirm_endpoint(confirm_details: ConfirmDetails):
 
 @app.post("/auth/login")
 def login_endpoint(auth_details: AuthDetails):
-    result = login(auth_details.email, auth_details.password)
-    auth_result = result.get("AuthenticationResult")
-    if not auth_result:
-        raise HTTPException(status_code=400, detail="Authentication failed")
+    try:
+        result = login(auth_details.email, auth_details.password)
+        auth_result = result.get("AuthenticationResult")
+        if not auth_result:
+            raise HTTPException(status_code=400, detail="Authentication failed")
+            
+        access_token = auth_result.get("AccessToken")
+        id_token = auth_result.get("IdToken")
+        refresh_token = auth_result.get("RefreshToken", None)
         
-    access_token = auth_result.get("AccessToken")
-    id_token = auth_result.get("IdToken")
-    refresh_token = auth_result.get("RefreshToken", None)
-    
-    response = JSONResponse({"message": "Login successful"})
-    response.set_cookie(
-        key="access_token",
-        value=access_token,
-        httponly=True,
-        secure=False,  # Set to True in production with HTTPS
-        samesite="lax",
-        path="/",
-        max_age=3600  # 1 hour expiration
-    )
-    response.set_cookie(
-        key="id_token",
-        value=id_token,
-        httponly=True,
-        secure=False,
-        samesite="lax",
-        path="/",
-        max_age=3600
-    )
-    if refresh_token:
+        response = JSONResponse({"message": "Login successful"})
         response.set_cookie(
-            key="refresh_token",
-            value=refresh_token,
+            key="access_token",
+            value=access_token,
             httponly=True,
             secure=False,
             samesite="lax",
             path="/",
-            max_age=86400  # 1 day expiration
+            domain="54.219.163.27",
+            max_age=3600
         )
-    return response
+        response.set_cookie(
+            key="id_token",
+            value=id_token,
+            httponly=True,
+            secure=False,
+            samesite="lax",
+            path="/",
+            max_age=3600
+        )
+        if refresh_token:
+            response.set_cookie(
+                key="refresh_token",
+                value=refresh_token,
+                httponly=True,
+                secure=False,
+                samesite="lax",
+                path="/",
+                max_age=86400
+            )
+        return response
+    except HTTPException as e:
+        raise e
 
 @app.get("/auth/session")
 def session_endpoint(request: Request):
@@ -154,12 +155,8 @@ def logout_endpoint(response: Response):
     response.delete_cookie("refresh_token")
     return {"message": "Logout successful"}
 
-# --------------------
-# New Task Endpoints
-# --------------------
 @app.get("/tasks/dashboard")
 def get_dashboard(user_id: int = Query(...), db: Session = Depends(get_db)):
-    # Count active tasks (only pending tasks remain in tasks table)
     active_tasks_count = db.query(models.Task).filter(models.Task.user_id == user_id).count()
     # Count completed tasks from the history table
     completed_tasks_count = db.query(models.CompletedTask).filter(models.CompletedTask.user_id == user_id).count()
@@ -202,7 +199,7 @@ def create_task(task: schemas.TaskCreate, db: Session = Depends(get_db)):
          title=task.title,
          description=task.description,
          due_date=task.due_date,
-         status="pending",  # new tasks are created in the pending state
+         status="pending",
          user_id=task.user_id
     )
     db.add(db_task)
@@ -218,7 +215,6 @@ def update_task(task_id: int, task: schemas.TaskUpdate, db: Session = Depends(ge
     
     previous_status = task_obj.status
 
-    # Update task fields (convert enums to SQLAlchemy enums if needed)
     task_obj.title = task.title
     task_obj.description = task.description
     task_obj.due_date = task.due_date
@@ -226,8 +222,6 @@ def update_task(task_id: int, task: schemas.TaskUpdate, db: Session = Depends(ge
     task_obj.status = models.TaskStatusEnum(task.status.value)
     db.commit()
 
-    # If the task is now marked as completed and wasn't before,
-    # create a history record in the completed_tasks table and remove it from tasks.
     if previous_status != models.TaskStatusEnum.completed and task_obj.status == models.TaskStatusEnum.completed:
         completed_task = models.CompletedTask(
             task_id=task_obj.id,
@@ -239,7 +233,7 @@ def update_task(task_id: int, task: schemas.TaskUpdate, db: Session = Depends(ge
             completed_at=datetime.utcnow()
         )
         db.add(completed_task)
-        db.delete(task_obj)  # Remove from tasks table
+        db.delete(task_obj)
         db.commit()
         return completed_task
 
@@ -253,3 +247,21 @@ def delete_task(task_id: int, db: Session = Depends(get_db)):
     db.delete(db_task)
     db.commit()
     return {"message": "Task deleted"}
+
+@app.post("/auth/forgot-password")
+def forgot_password_endpoint(email_data: schemas.EmailSchema):
+    try:
+        response = forgot_password(email_data.email)
+        return {"message": "Password reset code sent to your email"}
+    except Exception as e:
+        print(f"Forgot password error: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.post("/auth/reset-password")
+def reset_password_endpoint(reset_data: schemas.PasswordResetSchema):
+    response = confirm_forgot_password(
+        reset_data.email, 
+        reset_data.code, 
+        reset_data.password
+    )
+    return {"message": "Password has been reset successfully"}
