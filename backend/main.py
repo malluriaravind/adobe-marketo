@@ -22,12 +22,15 @@ with engine.begin() as connection:
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+raw = os.getenv('CORS_ALLOWED_ORIGINS', '')
+ALLOWED_ORIGINS = [u.strip() for u in raw.split(',') if u.strip()]
+
 
 origins = ["http://54.219.163.27", "http://54.219.163.27:80", "http://localhost:3000"]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -115,7 +118,7 @@ def login_endpoint(auth_details: AuthDetails):
             secure=False,
             samesite="lax",
             path="/",
-            domain="54.219.163.27",
+            domain=ALLOWED_ORIGINS,
             max_age=3600
         )
         response.set_cookie(
@@ -125,6 +128,7 @@ def login_endpoint(auth_details: AuthDetails):
             secure=False,
             samesite="lax",
             path="/",
+            domain=ALLOWED_ORIGINS
             max_age=3600
         )
         if refresh_token:
@@ -135,6 +139,7 @@ def login_endpoint(auth_details: AuthDetails):
                 secure=False,
                 samesite="lax",
                 path="/",
+                domain=ALLOWED_ORIGINS
                 max_age=86400
             )
         return response
