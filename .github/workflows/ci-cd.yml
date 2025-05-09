@@ -111,3 +111,8 @@ jobs:
           kubectl create namespace my-app --dry-run=client -o yaml | kubectl apply -f -
           kubectl apply -f k8s/backend.yaml
           kubectl apply -f k8s/frontend.yaml
+          kubectl apply -f k8s/backend-autoscaling.yaml
+          kubectl apply -f k8s/frontend-autoscaling.yaml
+          kubectl rollout status deployment/my-app-backend -n my-app
+          kubectl rollout status deployment/my-app-frontend -n my-app
+
