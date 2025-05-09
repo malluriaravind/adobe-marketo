@@ -348,3 +348,12 @@ The application implements comprehensive monitoring and maintenance procedures:
   - Log levels (DEBUG, INFO, WARN, ERROR, FATAL)
   - Correlation IDs for request tracing
   - Log retention policies (30 days for standard, 7 years for audit logs)
+
+## Screenshots
+![Signup Page](./signup.png)
+![Verification Code](./verification-code.png)
+![Login Page](./login.png)
+![Tasks Page](./tasks-page.png)
+![Task](./task.png)
+![Dashboard Page](./task-dashboard.png)
+![Rate Limiting])./rate-limiting.png
