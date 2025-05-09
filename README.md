@@ -27,7 +27,7 @@ The Task Management Application is a comprehensive cloud-native solution designe
 
 ## System Architecture
 
-![High Level Design](Adobe-Marketo.png)
+![High Level Design](./Adobe-Marketo.PNG)
 
 The application implements a cloud-native microservices architecture deployed on AWS infrastructure with Kubernetes orchestration. This architecture prioritizes scalability, resilience, and maintainability.
 
